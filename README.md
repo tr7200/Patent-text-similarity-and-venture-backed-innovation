@@ -1,4 +1,4 @@
-# Patent-text-analytics-and-venture-backed-innovation
+# Patent text analytics and venture-backed innovation
 
 Tensorflow-Keras neural networks of venture capital/corporate innovations research
 
