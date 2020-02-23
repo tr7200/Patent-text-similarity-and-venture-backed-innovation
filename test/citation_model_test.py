@@ -20,15 +20,19 @@ def predict_patent(X):
     Hard-coded for the patent count model weights in github
     Loads model, predicts on X, and returns prediction
     '''
-    model = 'patent_text_model_epoch_no.030-2-14-20.h5'
+    model = 'citations_text_model_epoch_no.029-2-17-20.h5'
     patent_model = load_model(model)
     prediction = patent_model.predict(X)
     return prediction
 
 class patentTest(unittest.TestCase):
-    def test(self):
+    def test1(self):
         self.assertEqual(predict_patent(X=pred_data(0,1)), 1.0519466)
+    def test2(self):
         self.assertEqual(predict_patent(X=pred_data(1,2)), 1.3384985)
+    def test3(self):
         self.assertEqual(predict_patent(X=pred_data(2,3)), 1.192138)
+    def test4(self):
         self.assertEqual(predict_patent(X=pred_data(3,4)), 1.6698763)
+    def test5(self):
         self.assertEqual(predict_patent(X=pred_data(4,5)), 0.36851412)
