@@ -38,9 +38,13 @@ def predict_patent(X):
     return prediction
 
 class patentTest(unittest.TestCase):
-    def test(self):
+    def test1(self):
         self.assertEqual(predict_patent(X=pred_data(0,1)), -0.0048939) # 0 + bias
+    def test2(self):
         self.assertEqual(predict_patent(X=pred_data(1,2)), 1.1016113)
+    def test3(self):
         self.assertEqual(predict_patent(X=pred_data(2,3)), 1.682951)
+    def test4(self):
         self.assertEqual(predict_patent(X=pred_data(3,4)), 1.3852881)
+    def test5(self):
         self.assertEqual(predict_patent(X=pred_data(4,5)), 0.29458386)
