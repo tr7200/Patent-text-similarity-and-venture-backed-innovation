@@ -1,3 +1,3 @@
 # Tests
 
-Regression tests for the prediction object are here, as well as the data for those tests.
+Tests for the prediction objects are here, as well as the data for those tests. Additional tests for the cosine similarity calculation script may be added here. 
