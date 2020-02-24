@@ -6,7 +6,7 @@ Tools used: Tensorflow/Keras, PlaidML (for GPU), and Hyperas for hyperparameter 
 
 This repository contains a series of predictive objects made using the data from my finance research paper ["Patent text analytics and Venture-backed Innovation."](https://drive.google.com/open?id=1sqighkgCou1QalQ04polmRmMXUBmQOJN) The research finds that venture-backed portfolio companies which produce patents that are textually more similar to those of their industry peers produce more patents and higher quality patents, as quality is measured by the number of citations by other patents. 4.9 million cosine similarity measures between the patents of 961 venture-backed portfolio companies from 28 different nations provide results that are able to generalize beyond the English language with the addition of a cultural-linguistic distance measure from [West and Graham (2004)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C9&q=west+and+graham+2004+linguistic+distance&btnG=).
 
-This density plot shows the density of VC deals by nation for a slightly larger sample of 1294 VC deals of which the 961 VC deals in this data are a subset:
+This density plot shows the density of VC deals by nation for a slightly larger sample of 1294 VC deals of which the 961 VC deals in this data are a subset. Though the represesntation of nations by year varies, the effects of the dot-com bubble in 1999 is clearly visible in the plot:
 
 ![Density_of_VC_deals_by_year.png](Density_of_VC_deals_by_year.png)
 
