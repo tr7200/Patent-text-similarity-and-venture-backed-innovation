@@ -13,7 +13,15 @@ This command line script takes arguments for:
 Returns:
     - The average of the cosine similarities between the scraped patents 
     and your patent (choose number = 1 if you don't want an average)
+
+`python get_cosine_similarity-3-21-20.py -n 5 -sdc biotech -filename test_cosine.csv`
+
+should return:
+
+'The similarity is 0.04'
+
 """
+
 
 import re
 import sys
