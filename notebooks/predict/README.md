@@ -4,6 +4,8 @@ A jupyter notebook here shows how to predict on new data and includes
 a short data dictionary (see the [research paper](https://drive.google.com/open?id=1sqighkgCou1QalQ04polmRmMXUBmQOJN) 
 for further details).
 
+To view it in Jupyter's NBViewer, click [here](https://nbviewer.jupyter.org/github/tr7200/Patent-text-similarity-and-venture-backed-innovation/blob/master/notebooks/predict/Predict.ipynb)
+
 There is also a command line script that may be used to create your 
 own cosine similarity variable. The script takes a CSV file with your 
 patent's description as input and accepts arguments for the SDC Platinum 
