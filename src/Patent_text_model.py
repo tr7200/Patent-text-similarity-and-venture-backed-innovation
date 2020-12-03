@@ -56,9 +56,7 @@ os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 # Create our data function
 
 def data(indep_variables, target):
-    """
-    Importing data, dropping id variables, scaling data between 0 and 1 for benefit of activation functions
-    """
+    """Importing data, dropping id variables, scaling data between 0 and 1 for benefit of activation functions"""
     indep_variables = read_csv(indep_variables, header = 0)
     target = read_csv(target, header = 0)
     train_x, test_x, train_y, test_y= train_test_split(indep_variables, target, test_size = 0.05, random_state = 1)
@@ -77,19 +75,18 @@ train_x, train_y, test_x, test_y = data(indep_variables, target)
 
 
 def patent_value_loss(y_true, y_pred):
-  '''
-  Let's add a custom loss metric for patent values!
-
-  According to:
-
-  https://www.ipwatchdog.com/2017/07/12/patent-portfolio-valuations/id=85409/
-
-  the average value of a patent is around $50,000 per patent
-  (conservatively $50,000--could be up to $250,0000)
+  '''Custom loss metric for patent values
+  
+  Args:
+      y_true
+      y_pred
   '''
 
   patent_value_loss = K.abs(1 - K.exp(y_true - y_pred)) * 50000
-
+  # According to https://www.ipwatchdog.com/2017/07/12/patent-portfolio-valuations/id=85409/
+  # the average value of a patent is around $50,000 per patent
+  # (conservatively $50,000--could be up to $250,0000)
+    
   return patent_value_loss
 
 """
