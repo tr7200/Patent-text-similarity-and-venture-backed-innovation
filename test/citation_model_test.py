@@ -3,9 +3,7 @@ import pandas as pd
 from keras.models import load_model
 
 def pred_data(i, j):
-    '''
-    Loads the data, converts to array, transforms the data, returns it
-    '''
+    '''Loads the data, converts to array, transforms the data, returns it'''
     data = pd.read_csv('test_data.csv')
     data = data[i:j]
     scalerfile = 'Citations_text_cosine_similarity_training_MinMaxScaler-2-17-20.save'
@@ -13,14 +11,13 @@ def pred_data(i, j):
     # Transforming sample data
     # (sample.reshape() is required because it is just one line, an array)
     X = scaler.transform(data.reshape(-1, 31))
+    
     return X
 
 def predict_patent(X):
-    '''
-    Hard-coded for the patent count model weights in github
-    Loads model, predicts on X, and returns prediction
-    '''
+    '''Loads model, predicts on X, and returns prediction'''
     model = 'citations_text_model_epoch_no.029-2-17-20.h5'
+    # Hard-coded for the patent count model weights in github
     patent_model = load_model(model)
     prediction = patent_model.predict(X)
     return prediction
