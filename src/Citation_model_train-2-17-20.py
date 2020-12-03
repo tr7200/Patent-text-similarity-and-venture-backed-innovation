@@ -62,9 +62,7 @@ os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 # Create our data function
 
 def data(indep_variables, target):
-    """
-    Importing data, dropping id variables, scaling data between 0 and 1 for benefit of activation functions
-    """
+    """Importing data, dropping id variables, scaling data between 0 and 1 for benefit of activation functions"""
     indep_variables = read_csv(indep_variables, header = 0)
     target = read_csv(target, header = 0)
     train_x, test_x, train_y, test_y= train_test_split(indep_variables, target, test_size = 0.05, random_state = 1)
