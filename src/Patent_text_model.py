@@ -1,15 +1,20 @@
 from __future__ import print_function
-import numpy as np
-import keras
+
 import os
-from pandas import read_csv
 
 import subprocess
 import platform
 import datetime as dt
 import pickle, joblib
 
-from keras.callbacks import ModelCheckpoint, CSVLogger, EarlyStopping, ReduceLROnPlateau
+import numpy as np
+from pandas import read_csv
+
+import keras
+from keras.callbacks import (ModelCheckpoint, 
+                             CSVLogger, 
+                             EarlyStopping, 
+                             ReduceLROnPlateau)
 from keras.layers.core import Dense, Activation
 from keras.layers import PReLU
 from keras.models import Sequential, load_model
@@ -21,7 +26,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 import matplotlib.pyplot as plt
-%matplotlib inline
+
+
 
 np.random.seed(1)
 
@@ -29,24 +35,21 @@ np.random.seed(1)
 # Reproducibility code
 
 # save python environment when run
-open('Keras_patent_text_training_environment-2-14-20.txt', 'wb').write(subprocess.check_output(['pip', 'list']))
-
+open('Keras_patent_text_training_environment-2-14-20.txt', 
+     'wb').write(subprocess.check_output(['pip', 'list']))
 # underlying platform
 system = platform.uname()
-
 # python version
 python_version = platform.python_version()
-
 # date and time of run
 date = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-
 config = {
     'system': system,
     'python_version': python_version,
     'date': date
 }
-
-pickle.dump(config, open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
+pickle.dump(config, 
+            open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
 
 
 # Using AMD gpu with PlaidML and Metal
@@ -56,45 +59,52 @@ os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 # Create our data function
 
 def data(indep_variables, target):
-    """Importing data, dropping id variables, scaling data between 0 and 1 for benefit of activation functions"""
+    """Import data, drop ids, scale data to 0 and 1 for activation functions"""
     indep_variables = read_csv(indep_variables, header = 0)
     target = read_csv(target, header = 0)
-    train_x, test_x, train_y, test_y= train_test_split(indep_variables, target, test_size = 0.05, random_state = 1)
+    train_x, test_x, train_y, test_y= train_test_split(indep_variables, 
+                                                       target, 
+                                                       test_size = 0.05, 
+                                                       random_state = 1)
     x_scaler = MinMaxScaler().fit(train_x)
     train_x = x_scaler.transform(train_x)
     test_x = x_scaler.transform(test_x)
-    joblib.dump(x_scaler, "Patent_text_cosine_similarity_training_MinMaxScaler-2-14-20.save")
+    joblib.dump(x_scaler, 
+                "Patent_text_cosine_similarity_training_MinMaxScaler-2-14-20.save")
+    
     return train_x, train_y, test_x, test_y
 
 
 # Load the data
-indep_variables = '../Patent_text_independent_variables-11-13-19.csv'
-target = '../Patent_count_y-11-13-19.csv'
+FEATURES = '../Patent_text_independent_variables-11-13-19.csv'
+TARGET = '../Patent_count_y-11-13-19.csv'
 
-train_x, train_y, test_x, test_y = data(indep_variables, target)
+train_x, train_y, test_x, test_y = data(FEATURES, TARGET)
 
 
 def patent_value_loss(y_true, y_pred):
   '''Custom loss metric for patent values
   
   Args:
-      y_true
-      y_pred
+      y_true: ground truth
+      y_pred: predictions
+      
+  Returns:
+      Loss estimated in USD baased on value of patent from:
+      https://www.ipwatchdog.com/2017/07/12/patent-portfolio-valuations/id=85409/
   '''
-
   patent_value_loss = K.abs(1 - K.exp(y_true - y_pred)) * 50000
-  # According to https://www.ipwatchdog.com/2017/07/12/patent-portfolio-valuations/id=85409/
-  # the average value of a patent is around $50,000 per patent
-  # (conservatively $50,000--could be up to $250,0000)
     
   return patent_value_loss
 
+
 """
 Instantiate a model - the architectural choices chosen by Hyperas
-led to erratic loss during training, these are slightly different
+led to erratic loss during training, this is slightly different
 
 The loss function is MSE, which is more appropriate for a
-logarithmic dependent variable and robust to outliers
+logarithmic dependent variable, but MAE is added as a metric as 
+well since it is robust to outliers
 """
 
 model = Sequential()
@@ -116,10 +126,10 @@ model.add(Dense(8, kernel_initializer='he_normal'))
 model.add(keras.layers.PReLU())
 model.add(Dense(1, kernel_initializer='he_normal'))
 
-model.compile(loss='mean_squared_error', metrics=['mae', patent_value_loss], optimizer='adam')
-
-
-# Create our callbacks and train
+model.compile(loss='mean_squared_error', 
+              metrics=['mae', 
+                       patent_value_loss],
+              optimizer='adam')
 
 callbacks = [EarlyStopping(monitor='val_loss',
                            patience=3,
@@ -141,7 +151,6 @@ callbacks = [EarlyStopping(monitor='val_loss',
                              period=1),
              CSVLogger('patent_text_training-2-14-20.log')]
 
-
 result = model.fit(train_x,
                    train_y,
                    batch_size=16,
@@ -151,17 +160,17 @@ result = model.fit(train_x,
                    validation_split=0.05)
 
 
- # Loss plot
- plt.plot(result.history['loss'])
- plt.plot(result.history['val_loss'])
- plt.title('model loss')
- plt.ylabel('loss')
- plt.xlabel('epoch')
- plt.legend(['train', 'validation'], loc='upper left')
- plt.show()
+# MSE loss plot
+plt.plot(result.history['loss'])
+plt.plot(result.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
 
 
-# MAE plot
+# MAE metric plot
 plt.plot(result.history['mean_absolute_error'])
 plt.plot(result.history['val_mean_absolute_error'])
 plt.title('model MAE')
@@ -181,5 +190,7 @@ plt.legend(['train', 'validation'], loc='upper left')
 plt.show()
 
 
-model = load_model('patent_text_model_epoch_no.030-2-14-20.h5', custom_objects={'patent_value_loss': patent_value_loss})
+model = load_model('patent_text_model_epoch_no.030-2-14-20.h5', 
+                   custom_objects={'patent_value_loss': patent_value_loss})
+
 print(model.evaluate(test_x, test_y))
