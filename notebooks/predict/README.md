@@ -4,7 +4,7 @@ A jupyter notebook here shows how to predict on new data and includes
 a short data dictionary (see the [research paper](https://drive.google.com/open?id=1sqighkgCou1QalQ04polmRmMXUBmQOJN) 
 for further details).
 
-It can be viewed in Jupyter's NBViewer [here](https://nbviewer.jupyter.org/github/tr7200/Patent-text-similarity-and-venture-backed-innovation/blob/master/notebooks/predict/Predict.ipynb).
+It can be viewed in Jupyter's NBViewer [here](https://nbviewer.jupyter.org/github/tr7200/Patent-text-similarity-and-venture-backed-innovation/blob/master/notebooks/predict/Predict_on_image.ipynb).
 
 There is also a command line script here that may be used to create your 
 own cosine similarity variable. The script takes:
