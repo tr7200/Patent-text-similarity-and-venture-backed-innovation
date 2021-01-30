@@ -8,9 +8,11 @@ It can be viewed in Jupyter's NBViewer [here](https://nbviewer.jupyter.org/githu
 
 There is also a command line script here that may be used to create your 
 own cosine similarity variable. The script takes:
+
 - a CSV file with your patent's description as input
 - the SDC Platinum category into which the patent 
-- the number of patents to compare it with 
+- the number of patents to compare it with
+
 and returns an appropriate cosine similarity measure.
 
 The command line script uses the Loughran-McDonald stop word list for 
