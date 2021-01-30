@@ -241,17 +241,34 @@ def prepare_text(Patents=Patents):
     lemmatizer = nltk.stem.WordNetLemmatizer()
     snowballer = SnowballStemmer('english')
     
-    patent_specific_stop_words = ['Fig.', 'fig.' 'step', '(', ')', 'no.', 'i.e.', 'e.g.', 'pp.', 'ip', '(step )' '(step ).']
+    patent_specific_stop_words = ['Fig.', 
+                                  'fig.' 
+                                  'step', 
+                                  '(', ')', 
+                                  'no.', 
+                                  'i.e.', 
+                                  'e.g.', 
+                                  'pp.', 
+                                  'ip', 
+                                  '(step )' 
+                                  '(step ).']
   
     Patents['Desc'] = Patents['Desc'].str.lower()
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: re.sub(r'\d+', '', str(x)))
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: ' '.join([word for word in str(x).split() if word not in stop_words]))
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: ' '.join([word for word in str(x).split() if word not in patent_specific_stop_words]))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: re.sub(r'\d+', '', str(x)))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: ' '.join([word for word in str(x).split() if word not in stop_words]))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: ' '.join([word for word in str(x).split() if word not in patent_specific_stop_words]))
     # Regex to remove words less than 2 chars
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: re.sub(r'\b\w{1,2}\b', '', str(x)))
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: tokenizer.tokenize(str(x)))
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: lemmatize_text(str(x)))
-    Patents['Desc'] = Patents['Desc'].apply(lambda x: " ".join([snowballer.stem(word) for word in x]))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: re.sub(r'\b\w{1,2}\b', '', str(x)))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: tokenizer.tokenize(str(x)))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: lemmatize_text(str(x)))
+    Patents['Desc'] = Patents['Desc']
+        .apply(lambda x: " ".join([snowballer.stem(word) for word in x]))
   
     return Patents
 
