@@ -3,29 +3,33 @@ import pandas as pd
 from keras.models import load_model
 import keras.backend as K
 
+
 def patent_value_loss(y_true, y_pred):
-    '''must be loaded as a custom object at the time of prediction'''
+    '''custom metric used during training and must be loaded at prediction time'''
     patent_value_loss = K.abs(1 - K.exp(y_true - y_pred)) * 50000
+    
     return patent_value_loss
 
 def pred_data(i, j):
     '''Loads the data, converts to array, transforms the data, returns it'''
-    data = pd.read_csv('test_data.csv')
-    data = data[i:j]
-    scalerfile = 'Patent_text_cosine_similarity_training_MinMaxScaler-2-14-20.save'
-    scaler = joblib.load(open(scalerfile, 'rb'))
+    DATA = pd.read_csv('test_data.csv')
+    data = DATA[i:j]
+    SCALERFILE = 'Patent_text_cosine_similarity_training_MinMaxScaler-2-14-20.save'
+    scaler = joblib.load(open(SCALERFILE, 'rb'))
     # Transforming sample data
     # (sample.reshape() is required because it is just one line, an array)
     X = scaler.transform(data.reshape(-1, 31))
+    
     return X
 
 def predict_patent(X):
-    '''Loads model, predicts on X, and returns prediction'''
-    model = "patent_text_model_epoch_no.030-2-14-20.h5"
+    '''Loads model with patent_value_loss, returns prediction on X'''
+    MODEL = "patent_text_model_epoch_no.030-2-14-20.h5"
     # Hard-coded for the patent count model weights in github
-    patent_model = load_model(model,
+    patent_model = load_model(MODEL,
                               custom_objects={'patent_value_loss': patent_value_loss})
     prediction = patent_model.predict(X)
+    
     return prediction
 
 class patentTest(unittest.TestCase):
