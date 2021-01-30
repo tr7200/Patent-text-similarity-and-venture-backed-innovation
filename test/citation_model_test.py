@@ -20,6 +20,7 @@ def predict_patent(X):
     # Hard-coded for the patent count model weights in github
     patent_model = load_model(model)
     prediction = patent_model.predict(X)
+    
     return prediction
 
 class patentTest(unittest.TestCase):
