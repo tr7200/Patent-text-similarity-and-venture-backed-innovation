@@ -4,13 +4,14 @@ A jupyter notebook here shows how to predict on new data and includes
 a short data dictionary (see the [research paper](https://drive.google.com/open?id=1sqighkgCou1QalQ04polmRmMXUBmQOJN) 
 for further details).
 
-To view it in Jupyter's NBViewer, click [here](https://nbviewer.jupyter.org/github/tr7200/Patent-text-similarity-and-venture-backed-innovation/blob/master/notebooks/predict/Predict.ipynb)
+It can be viewed in Jupyter's NBViewer [here](https://nbviewer.jupyter.org/github/tr7200/Patent-text-similarity-and-venture-backed-innovation/blob/master/notebooks/predict/Predict.ipynb).
 
-There is also a command line script that may be used to create your 
-own cosine similarity variable. The script takes a CSV file with your 
-patent's description as input and accepts arguments for the SDC Platinum 
-category into which the patent belongs as well as the number of patents to 
-compare it with to obtain the cosine similarity measure.
+There is also a command line script here that may be used to create your 
+own cosine similarity variable. The script takes:
+- a CSV file with your patent's description as input
+- the SDC Platinum category into which the patent 
+- the number of patents to compare it with 
+and returns an appropriate cosine similarity measure.
 
 The command line script uses the Loughran-McDonald stop word list for 
 finance and accounting text data, which slightly modifies the default list 
