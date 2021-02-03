@@ -15,13 +15,13 @@ it. Github is a graveyard of patent scraping libraries and scripts that
 have ceased to work due to API restrictions and HTML formatting changes.
 
 
-ARGS:
+Args:
     - number of patents to scrape (int): integer between 1-30
     - SDC Platinum industry category (str): choice of 
         biotech, comm, comprel, medical, nonht, or semi
     - patent text (CSV): text string on single line
 
-RETURNS:
+Returns:
     - The average of the cosine similarities between the 
         scraped patents and your patent (choose number 
         arg = 1 if you don't want an average)
@@ -153,10 +153,10 @@ class MLStripper(HTMLParser):
 def strip_tags(html):
     """HTML tag stripper
 
-    ARGS:
+    Args:
         - html: scraped HTML data
 
-    RETURNS:
+    Returns:
         - Tag-stripped HTML
     """
     s = MLStripper()
@@ -169,14 +169,14 @@ def patent_scraper(patent_list: list=patent_list,
                    Patents=None):
     """Patent scraper
     
-    ARGS:
+    Args:
         - patent_list (list): list of randomly chosen USPTO patent numbers
             from the chosen SDC Platinum industry category.
         - Patent_data (pandas dataframe): Empty dataframe for the scraped 
             patent descriptions from the patent_list. Position 0 has the 
             description of the user's patent.
 
-    RETURNS:
+    Returns:
         - Patent_data (pandas dataframe): scraped (not cleaned) patent 
         descriptions for the patents of interest.
 
@@ -211,10 +211,10 @@ def patent_scraper(patent_list: list=patent_list,
 def lemmatize_text(text: list=text):
     """Separate lemmatizer (some argue lemmatization removes valuable information)    
 
-    ARGS:
+    Args:
         - text (list): patent description
         
-    RETURNS:
+    Returns:
         - text (list): lemmatized patent description
 
     """
@@ -226,12 +226,12 @@ def lemmatize_text(text: list=text):
 def prepare_text(Patents=Patents):
     """Text cleaner
     
-    ARGS:
+    Args:
         - Patent_data (dataframe): Single column 'Descriptions' 
             has patent of interest at position 0 and the text of 
             the scraped patents below it.
     
-    RETURNS:
+    Returns:
         - Patent_data (dataframe): Snowball-stemmed, tokenized, 
             lemmatized lower-case text with stop words removed 
             and words less than two characters removed.
@@ -276,12 +276,12 @@ def prepare_text(Patents=Patents):
 def main(Patents=Patents):
     """Get the average cosine similarity for the patent of interest.
 
-    ARGS:
+    Args:
         - Patent_data (Pandas DataFrame): single column dataframe where 
             'Desc' column has patent text cleaned and prepared by the 
             prepare_text() function.
 
-    RETURNS:
+    Returns:
         - Cosine_similarity (float): cosine similarity value between the 
             patent of interest andd number averaged over the number of 
             patents scraped.
