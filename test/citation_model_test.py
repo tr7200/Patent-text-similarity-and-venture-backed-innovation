@@ -34,3 +34,6 @@ class patentTest(unittest.TestCase):
         self.assertEqual(predict_patent(X=pred_data(3,4)), 1.6698763)
     def test5(self):
         self.assertEqual(predict_patent(X=pred_data(4,5)), 0.36851412)
+
+if __name__ == '__main__':
+    unittest.main()
