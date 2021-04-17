@@ -1,6 +1,6 @@
 # Patent text similarity and cross-cultural venture-backed innovation
 
-Tensorflow-Keras neural networks of venture capital/corporate innovations research
+Tensorflow-Keras neural network implementation of venture capital/corporate innovations research
 
 Tools used: Tensorflow/Keras, PlaidML (for GPU), and Hyperas for hyperparameter tuning.
 
