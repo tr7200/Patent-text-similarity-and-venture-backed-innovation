@@ -2,7 +2,7 @@
 
 Tensorflow-Keras neural network implementation of venture capital/corporate innovations research
 
-Tools used: Tensorflow/Keras, PlaidML (for GPU), and Hyperas for hyperparameter tuning.
+Tools used: Tensorflow-Keras, PlaidML (for GPU), and Hyperas for hyperparameter tuning.
 
 This repository contains a series of predictive objects made using the data from my finance research paper ["Patent text similarity and cross-cultural venture-backed innovation,"](https://www.sciencedirect.com/science/article/abs/pii/S2214635019302059) which is currently under embargo for publication in the Journal of Behavioral and Experimental Finance's special issue on AI in finance. An earlier version of the paper that has the exact details of the methodology behind the research is located [here](https://drive.google.com/open?id=1PGn47EohzfwG4BcG6TkbC6tD7LqjtsJ4).
 
