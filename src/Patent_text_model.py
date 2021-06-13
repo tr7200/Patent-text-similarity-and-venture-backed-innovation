@@ -141,7 +141,7 @@ def main(features: str=FEATURES,
          callbacks: List=CALLBACKS):
          """ Load the data, create model, train"""
 
-         train_x, train_y, test_x, test_y = data(FEATURES, TARGET)
+         train_x, train_y, test_x, test_y = data(features, target)
      
          model = get_model()
     
@@ -175,9 +175,9 @@ if __name__ == '__main__':
     pickle.dump(config, 
                 open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
       
-    main(features=FEATURES,
-         target=TARGET,
-         callbacks=CALLBACKS)
+    result = main(features=FEATURES,
+                  target=TARGET,
+                  callbacks=CALLBACKS)
 
     # MSE loss plot
     plt.plot(result.history['loss'])
