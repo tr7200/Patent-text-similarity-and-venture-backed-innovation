@@ -1,6 +1,13 @@
+"""
+
+Train patent text model
+
+"""
+
 from __future__ import print_function
 
 import os
+from typing import List
 
 import subprocess
 import platform
@@ -28,37 +35,38 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 
+# Features, target, and callbacks
+FEATURES = '../Patent_text_independent_variables-11-13-19.csv'
+TARGET = '../Patent_count_y-11-13-19.csv'
+
+CALLBACKS = [EarlyStopping(monitor='val_loss',
+                           patience=3,
+                           verbose=1,
+                           mode='min',
+                           restore_best_weights=True),
+              ReduceLROnPlateau(monitor='val_loss',
+                               factor=0.1,
+                               patience=2,
+                               verbose=1,
+                               mode='auto',
+                               min_lr=1e-5),
+              ModelCheckpoint("patent_text_model_epoch_no.{epoch:03d}-2-14-20.h5",
+                             monitor='val_loss',
+                             verbose=1,
+                             save_best_only=True,
+                             save_weights_only=False,
+                             mode='min',
+                             period=1),
+              CSVLogger('patent_text_training-2-14-20.log')]
+
 
 np.random.seed(1)
-
-
-# Reproducibility code
-
-# save python environment when run
-open('Keras_patent_text_training_environment-2-14-20.txt', 
-     'wb').write(subprocess.check_output(['pip', 'list']))
-# underlying platform
-system = platform.uname()
-# python version
-python_version = platform.python_version()
-# date and time of run
-date = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
-config = {
-    'system': system,
-    'python_version': python_version,
-    'date': date
-}
-pickle.dump(config, 
-            open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
-
-
 # Using AMD gpu with PlaidML and Metal
 os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
 
-# Create our data function
-
-def data(indep_variables, target):
+def data(indep_variables=None, 
+         target=None):
     """Import data, drop ids, scale data to 0 and 1 for activation functions"""
     indep_variables = read_csv(indep_variables, header = 0)
     target = read_csv(target, header = 0)
@@ -75,13 +83,6 @@ def data(indep_variables, target):
     return train_x, train_y, test_x, test_y
 
 
-# Load the data
-FEATURES = '../Patent_text_independent_variables-11-13-19.csv'
-TARGET = '../Patent_count_y-11-13-19.csv'
-
-train_x, train_y, test_x, test_y = data(FEATURES, TARGET)
-
-
 def patent_value_loss(y_true, y_pred):
   '''Custom loss metric for patent values
   
@@ -90,7 +91,7 @@ def patent_value_loss(y_true, y_pred):
       y_pred: predictions
       
   Returns:
-      Loss estimated in USD baased on value of patent from:
+      Loss estimated in USD based on value of patent from:
       https://www.ipwatchdog.com/2017/07/12/patent-portfolio-valuations/id=85409/
   '''
   patent_value_loss = K.abs(1 - K.exp(y_true - y_pred)) * 50000
@@ -98,99 +99,117 @@ def patent_value_loss(y_true, y_pred):
   return patent_value_loss
 
 
-"""
-Instantiate a model - the architectural choices chosen by Hyperas
-led to erratic loss during training, this is slightly different
+def get_model():
+    """
+    Instantiate a model - the architectural choices chosen by Hyperas
+    led to erratic loss during training, this is slightly different
 
-The loss function is MSE, which is more appropriate for a
-logarithmic dependent variable, but MAE is added as a metric as 
-well since it is robust to outliers
-"""
+    The loss function is MSE, which is more appropriate for a
+    logarithmic dependent variable, but MAE is added as a metric as 
+    well since it is robust to outliers
+    """
 
-model = Sequential()
-model.add(Dense(31, input_shape=(31,), kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(26, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(24, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(20, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(18, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(14, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(6, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(8, kernel_initializer='he_normal'))
-model.add(keras.layers.PReLU())
-model.add(Dense(1, kernel_initializer='he_normal'))
+    model = Sequential()
+    model.add(Dense(31, input_shape=(31,), kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(26, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(24, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(20, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(18, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(14, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(6, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(8, kernel_initializer='he_normal'))
+    model.add(keras.layers.PReLU())
+    model.add(Dense(1, kernel_initializer='he_normal'))
 
-model.compile(loss='mean_squared_error', 
-              metrics=['mae', 
-                       patent_value_loss],
-              optimizer='adam')
-
-callbacks = [EarlyStopping(monitor='val_loss',
-                           patience=3,
-                           verbose=1,
-                           mode='min',
-                           restore_best_weights=True),
-             ReduceLROnPlateau(monitor='val_loss',
-                               factor=0.1,
-                               patience=2,
-                               verbose=1,
-                               mode='auto',
-                               min_lr=1e-5),
-             ModelCheckpoint("patent_text_model_epoch_no.{epoch:03d}-2-14-20.h5",
-                             monitor='val_loss',
-                             verbose=1,
-                             save_best_only=True,
-                             save_weights_only=False,
-                             mode='min',
-                             period=1),
-             CSVLogger('patent_text_training-2-14-20.log')]
-
-result = model.fit(train_x,
-                   train_y,
-                   batch_size=16,
-                   epochs=30,
-                   verbose=1,
-                   callbacks=callbacks,
-                   validation_split=0.05)
+    model.compile(loss='mean_squared_error', 
+                  metrics=['mae', 
+                           patent_value_loss],
+                  optimizer='adam')
+    
+    return model
 
 
-# MSE loss plot
-plt.plot(result.history['loss'])
-plt.plot(result.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
+def main(features: str=FEATURES,
+         target: str=TARGET,
+         callbacks: List=CALLBACKS):
+         """ Load the data, create model, train"""
+
+         train_x, train_y, test_x, test_y = data(FEATURES, TARGET)
+     
+         model = get_model()
+    
+         result = model.fit(train_x,
+                            train_y,
+                            batch_size=16,
+                            epochs=30,
+                            verbose=1,
+                            callbacks=callbacks,
+                            validation_split=0.05)
+          return result
+  
+  
+if __name__ == '__main__':
+    # Reproducibility code
+
+    # save python environment when run
+    open('Keras_patent_text_training_environment-2-14-20.txt', 
+        'wb').write(subprocess.check_output(['pip', 'list']))
+    # underlying platform
+    system = platform.uname()
+    # python version
+    python_version = platform.python_version()
+    # date and time of run
+    date = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
+    config = {
+        'system': system,
+        'python_version': python_version,
+        'date': date
+    }
+    pickle.dump(config, 
+                open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
+      
+    main(features=FEATURES,
+         target=TARGET,
+         callbacks=CALLBACKS)
+
+    # MSE loss plot
+    plt.plot(result.history['loss'])
+    plt.plot(result.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
 
 
-# MAE metric plot
-plt.plot(result.history['mean_absolute_error'])
-plt.plot(result.history['val_mean_absolute_error'])
-plt.title('model MAE')
-plt.ylabel('MAE')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
+    # MAE metric plot
+    plt.plot(result.history['mean_absolute_error'])
+    plt.plot(result.history['val_mean_absolute_error'])
+    plt.title('model MAE')
+    plt.ylabel('MAE')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
 
 
-# patent value loss plot
-plt.plot(result.history['patent_value_loss'])
-plt.plot(result.history['val_patent_value_loss'])
-plt.title('model patent value loss')
-plt.ylabel('patent value loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
+    # patent value loss plot
+    plt.plot(result.history['patent_value_loss'])
+    plt.plot(result.history['val_patent_value_loss'])
+    plt.title('model patent value loss')
+    plt.ylabel('patent value loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
 
 
-model = load_model('patent_text_model_epoch_no.030-2-14-20.h5', 
-                   custom_objects={'patent_value_loss': patent_value_loss})
+    model = load_model('patent_text_model_epoch_no.030-2-14-20.h5', 
+                       custom_objects={'patent_value_loss': patent_value_loss})
 
-print(model.evaluate(test_x, test_y))
+    print(model.evaluate(test_x, test_y))
