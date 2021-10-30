@@ -36,36 +36,6 @@ import matplotlib.pyplot as plt
 
 
 
-np.random.seed(1)
-# Using AMD gpu with PlaidML and Metal
-os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
-
-
-# The data and callbacks
-INDEP_VARIABLES = '../Patent_text_independent_variables-11-13-19.csv'
-TARGET = '../Citation_count_y-11-13-19.csv'
-
-CALLBACKS = [EarlyStopping(monitor='val_loss',
-                           patience=3,
-                           verbose=1,
-                           mode='min',
-                           restore_best_weights=True),
-             ReduceLROnPlateau(monitor='val_loss',
-                               factor=0.1,
-                               patience=2,
-                               verbose=1,
-                               mode='auto',
-                               min_lr=1e-5),
-             ModelCheckpoint("citations_text_model_epoch_no.{epoch:03d}-2-17-20.h5",
-                             monitor='val_loss',
-                             verbose=1,
-                             save_best_only=True,
-                             save_weights_only=False,
-                             mode='min',
-                             period=1),
-             CSVLogger('citations_text_training-2-17-20.log')]
-
-
 def data(indep_variables, target):
     """Import data, drop ids, scale data to 0 and 1 for activation functions"""
     indep_variables = read_csv(indep_variables, header = 0)
@@ -162,6 +132,36 @@ if __name__ == '__main__':
     }
 
     pickle.dump(config, open('Keras_citations_text_training_config-2-17-20.p', 'wb'))
+  
+  
+    np.random.seed(1)
+    # Using AMD gpu with PlaidML and Metal
+    os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
+
+    # The data and callbacks
+    INDEP_VARIABLES = '../Patent_text_independent_variables-11-13-19.csv'
+    TARGET = '../Citation_count_y-11-13-19.csv'
+
+    CALLBACKS = [EarlyStopping(monitor='val_loss',
+                           patience=3,
+                           verbose=1,
+                           mode='min',
+                           restore_best_weights=True),
+                 ReduceLROnPlateau(monitor='val_loss',
+                               factor=0.1,
+                               patience=2,
+                               verbose=1,
+                               mode='auto',
+                               min_lr=1e-5),
+                 ModelCheckpoint("citations_text_model_epoch_no.{epoch:03d}-2-17-20.h5",
+                             monitor='val_loss',
+                             verbose=1,
+                             save_best_only=True,
+                             save_weights_only=False,
+                             mode='min',
+                             period=1),
+                 CSVLogger('citations_text_training-2-17-20.log')]
   
   
     # Get data and fit model
