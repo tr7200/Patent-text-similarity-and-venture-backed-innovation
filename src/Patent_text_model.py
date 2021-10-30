@@ -35,35 +35,6 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 
-# Features, target, and callbacks
-FEATURES = '../Patent_text_independent_variables-11-13-19.csv'
-TARGET = '../Patent_count_y-11-13-19.csv'
-
-CALLBACKS = [EarlyStopping(monitor='val_loss',
-                           patience=3,
-                           verbose=1,
-                           mode='min',
-                           restore_best_weights=True),
-              ReduceLROnPlateau(monitor='val_loss',
-                               factor=0.1,
-                               patience=2,
-                               verbose=1,
-                               mode='auto',
-                               min_lr=1e-5),
-              ModelCheckpoint("patent_text_model_epoch_no.{epoch:03d}-2-14-20.h5",
-                             monitor='val_loss',
-                             verbose=1,
-                             save_best_only=True,
-                             save_weights_only=False,
-                             mode='min',
-                             period=1),
-              CSVLogger('patent_text_training-2-14-20.log')]
-
-
-np.random.seed(1)
-# Using AMD gpu with PlaidML and Metal
-os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
-
 
 def data(indep_variables=None, 
          target=None):
@@ -174,6 +145,35 @@ if __name__ == '__main__':
     }
     pickle.dump(config, 
                 open('Keras_patent_text_training_config-2-14-20.p', 'wb'))
+    
+    # Features, target, and callbacks
+    FEATURES = '../Patent_text_independent_variables-11-13-19.csv'
+    TARGET = '../Patent_count_y-11-13-19.csv'
+
+    CALLBACKS = [EarlyStopping(monitor='val_loss',
+                               patience=3,
+                               verbose=1,
+                               mode='min',
+                               restore_best_weights=True),
+                  ReduceLROnPlateau(monitor='val_loss',
+                                    factor=0.1,
+                                    patience=2,
+                                    verbose=1,
+                                    mode='auto',
+                                    min_lr=1e-5),
+                  ModelCheckpoint("patent_text_model_epoch_no.{epoch:03d}-2-14-20.h5",
+                                  monitor='val_loss',
+                                  verbose=1,
+                                  save_best_only=True,
+                                  save_weights_only=False,
+                                  mode='min',
+                                  period=1),
+                  CSVLogger('patent_text_training-2-14-20.log')]
+
+
+    np.random.seed(1)
+    # Using AMD gpu with PlaidML and Metal
+    os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
       
     result = main(features=FEATURES,
                   target=TARGET,
