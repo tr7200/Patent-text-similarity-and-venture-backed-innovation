@@ -64,71 +64,29 @@ from html.parser import HTMLParser
 import argparse
 
 
+def parseArgs():
+    """Command line argument parsing"""
+    parser = argparse.ArgumentParser(description="Reads in patent text from a .CSV, returns cosine similarity")
+    parser.add_argument("-n",
+                        "-number",
+                        type=int,
+                        help="The number of patents for comparison (also rnd.seed)",
+                        required=True)
+    parser.add_argument("-sdc", 
+                        "-sdc",
+                        type=str,
+                        help="The SDC category to which your patent belongs. Can \
+                        be either biotech, comm, comprel, medical, nonht, or semi",
+                        required=True)
+    parser.add_argument("-f",
+                        "filename",
+                        type=str,
+                        help="The name of CSV file containing your text.",
+                        required=True)
 
-BIOTECH_PATENTS = [5149635, 5196320, 5338669, 5741682, 6329195, 6830913,
-                   6267964, 6822075, 6380365, 5955316, 6080559, 6399570,
-                   6589727, 6589727, 6589727, 6589727, 6541268, 4918011,
-                   4973478, 4997814, 5171672, 5218093, 5086039, 5169837,
-                   5169837, 5208041, 5208041, 5290920, 5344819, 5382658]
+    args = parser.parse_args()
 
-COMMMEDIA_PATENTS = [6396896, 6625763, 5715174, 5764892, 5802280, 6244758,
-                     6300863, 6507914, 5991402, 6389409, 5491563, 6178243,
-                     6373947, 6725249, 6532230, 6192344, 6292549, 6754202,
-                     6766006, 6493439, 6738465, 6643321, 6731710, 3985392,
-                     4043603, 6452565, 6768454, 6816118, 5645434, 5734842]
-
-COMPREL_PATENTS = [6176582, 5845111, 5867715, 6754077, 6772394, 6192258, 
-                   6192258, 6381637, 6622306, 6470381, 6675204, 5309348,
-                   5349387, 5402178, 5411620, 5422589, 5434372, 5440252,
-                   5442278, 5465927, 5483154, 5518216, 5633656, 5526196,
-                   5526418, 5561653, 5574891, 5639336, 5506533, 5535285]
-
-MEDICAL_PATENTS = [5912132, 5955281, 6358698, 6528529, 6627645, 6815458, 
-                   6756393, 6316453, 6596719, 6720322, 6703392, 6815451,
-                   6702146, 4784162, 4784162, 4784162, 4784162, 4827943,
-                   4827943, 4827943, 4827943, 5922610, 6063027, 6038913, 
-                   6149606, 6099480, 6183416, 6511425, 6626844, 6723056]
-
-NONHT_PATENTS = [5976068, 6185978, 6261392, 6352297, 6471292, 6640595,
-                 6684505, 6726258, 6751998, 6331028, 6627018, 5862303,
-                 6069997, 6128439, 6132532, 6467676, 6578754, 6365435,
-                 6510976, 6550666, 6592019, 6599775, 6732913, 6734039,
-                 6750082, 5980870, 6220172, 6622579, 4037086, 4069412]
-
-SEMICONDUCTOR_PATENTS = [5911316, 6813166, 6150999, 6160531, 6195073, 6198222, 
-                         6113449, 6150767, 6172465, 6323830, 6344714, 6388643,
-                         6433762, 6501453, 6507150, 6376813, 6479933, 6483490,
-                         6621216, 6633126, 6489573, 6631565, 6166867, 6501726, 
-                         6549507, 6785202, 6366551, 6483798, 6492889, 6654185]
-
-sdc_dict ={'biotech': BIOTECH_PATENTS,
-           'comm': COMMMEDIA_PATENTS,
-           'comprel': COMPREL_PATENTS,
-           'medical': MEDICAL_PATENTS,
-           'nonht': NONHT_PATENTS,
-           'semi': SEMICONDUCTOR_PATENTS}
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-n", 'number', type=int,
-                    help="The number of patents for comparison (also rnd.seed)")
-parser.add_argument("-sdc", 'sdc', type=str,
-                    help="The SDC category to which your patent belongs. Can \
-                    be either biotech, comm, comprel, medical, nonht, or semi")
-parser.add_argument("-f", "filename", type=str,
-                    help="The name of CSV file containing your text.")
-
-args = parser.parse_args()
-number = args.number
-sdc = args.sdc
-filename = args.filename
-
-
-np.random.seed(number // 2)
-
-patent_of_interest = pd.read_csv(pd.Series(filename), sep=',')
-patent_list = random.choices(sdc_dict[sdc], k=number)
-Patents = pd.DataFrame(data = patent_of_interest, columns=['Desc'])
+    return args
 
 
 class MLStripper(HTMLParser):
@@ -150,7 +108,7 @@ class MLStripper(HTMLParser):
         return ''.join(self.fed)
 
 
-def strip_tags(html):
+def strip_tags(html: str=None):
     """HTML tag stripper
 
     Args:
@@ -166,7 +124,7 @@ def strip_tags(html):
 
 
 def patent_scraper(patent_list: list=patent_list, 
-                   Patents=None):
+                   Patents: str=None):
     """Patent scraper
     
     Args:
@@ -181,6 +139,9 @@ def patent_scraper(patent_list: list=patent_list,
         descriptions for the patents of interest.
 
     """
+    patent_of_interest = pd.read_csv(pd.Series(Patents), sep=',')
+    Patents = pd.DataFrame(data = patent_of_interest, columns=['Desc'])
+    
     scraped_patents = pd.DataFrame(columns=['Desc'])
 
     for i in range(len(patent_list)):
@@ -223,16 +184,16 @@ def lemmatize_text(text: list=text):
     return [w for w in w_tokenizer.tokenize(text)]
 
 
-def prepare_text(Patents=Patents):
+def prepare_text(Patents: pd.DataFrame=None):
     """Text cleaner
     
     Args:
-        - Patent_data (dataframe): Single column 'Descriptions' 
+        - Patents (dataframe): Single column 'Descriptions' 
             has patent of interest at position 0 and the text of 
             the scraped patents below it.
     
     Returns:
-        - Patent_data (dataframe): Snowball-stemmed, tokenized, 
+        - Patents (dataframe): Snowball-stemmed, tokenized, 
             lemmatized lower-case text with stop words removed 
             and words less than two characters removed.
     """
@@ -273,19 +234,24 @@ def prepare_text(Patents=Patents):
     return Patents
 
 
-def main(Patents=Patents):
+def main(Patents: str=None,
+         patent_list: list=None):
     """Get the average cosine similarity for the patent of interest.
 
     Args:
-        - Patent_data (Pandas DataFrame): single column dataframe where 
-            'Desc' column has patent text cleaned and prepared by the 
-            prepare_text() function.
-
+        - Patents (str): path to single column csv with patent text
+        - patent_list (list): list of randomly chosen USPTO patent numbers
+            from the chosen SDC Platinum industry category.
+        
     Returns:
         - Cosine_similarity (float): cosine similarity value between the 
             patent of interest andd number averaged over the number of 
             patents scraped.
     """
+    scraped_patents = patent_scraper(patent_list, Patents)
+    
+    Patents = prepare_text(scraped_patents)
+    
     length = len(Patents) - 1
     tfidf_vectorizer = TfidfVectorizer()
   
@@ -293,12 +259,66 @@ def main(Patents=Patents):
     cosine_matrix = cosine_similarity(summary_tfidf_matrix)
     average_of_cosines = np.mean(cosine_matrix[0][1:])
   
-    cosine = str('The similarity is %.2f' % average_of_cosines)
+    print(f'The similarity is {average_of_cosines}')
   
-    return cosine
+    return
 
 
 
 if '__name__' == main:
-    main(prepare_text(patent_scraper(patent_list, Patents)))
+    # patent lists
+    BIOTECH_PATENTS = [5149635, 5196320, 5338669, 5741682, 6329195, 6830913,
+                       6267964, 6822075, 6380365, 5955316, 6080559, 6399570,
+                       6589727, 6589727, 6589727, 6589727, 6541268, 4918011,
+                       4973478, 4997814, 5171672, 5218093, 5086039, 5169837,
+                       5169837, 5208041, 5208041, 5290920, 5344819, 5382658]
+
+    COMMMEDIA_PATENTS = [6396896, 6625763, 5715174, 5764892, 5802280, 6244758,
+                         6300863, 6507914, 5991402, 6389409, 5491563, 6178243,
+                         6373947, 6725249, 6532230, 6192344, 6292549, 6754202,
+                         6766006, 6493439, 6738465, 6643321, 6731710, 3985392,
+                         4043603, 6452565, 6768454, 6816118, 5645434, 5734842]
+
+    COMPREL_PATENTS = [6176582, 5845111, 5867715, 6754077, 6772394, 6192258, 
+                       6192258, 6381637, 6622306, 6470381, 6675204, 5309348,
+                       5349387, 5402178, 5411620, 5422589, 5434372, 5440252,
+                       5442278, 5465927, 5483154, 5518216, 5633656, 5526196,
+                       5526418, 5561653, 5574891, 5639336, 5506533, 5535285]
+
+    MEDICAL_PATENTS = [5912132, 5955281, 6358698, 6528529, 6627645, 6815458, 
+                       6756393, 6316453, 6596719, 6720322, 6703392, 6815451,
+                       6702146, 4784162, 4784162, 4784162, 4784162, 4827943,
+                       4827943, 4827943, 4827943, 5922610, 6063027, 6038913, 
+                       6149606, 6099480, 6183416, 6511425, 6626844, 6723056]
+
+    NONHT_PATENTS = [5976068, 6185978, 6261392, 6352297, 6471292, 6640595,
+                     6684505, 6726258, 6751998, 6331028, 6627018, 5862303,
+                     6069997, 6128439, 6132532, 6467676, 6578754, 6365435,
+                     6510976, 6550666, 6592019, 6599775, 6732913, 6734039,
+                     6750082, 5980870, 6220172, 6622579, 4037086, 4069412]
+
+    SEMICONDUCTOR_PATENTS = [5911316, 6813166, 6150999, 6160531, 6195073, 6198222, 
+                             6113449, 6150767, 6172465, 6323830, 6344714, 6388643,
+                             6433762, 6501453, 6507150, 6376813, 6479933, 6483490,
+                             6621216, 6633126, 6489573, 6631565, 6166867, 6501726, 
+                             6549507, 6785202, 6366551, 6483798, 6492889, 6654185]
+
+    sdc_dict ={'biotech': BIOTECH_PATENTS,
+               'comm': COMMMEDIA_PATENTS,
+               'comprel': COMPREL_PATENTS,
+               'medical': MEDICAL_PATENTS,
+               'nonht': NONHT_PATENTS,
+               'semi': SEMICONDUCTOR_PATENTS}
+
+    args = parseArgs()
+    
+    number = args.number
+    sdc = args.sdc
+    filename = args.filename
+
+    np.random.seed(number // 2)
+
+    patent_list = random.choices(sdc_dict[sdc], k=number)
+    
+    main(Patents, filename)
 
